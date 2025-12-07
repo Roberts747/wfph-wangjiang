@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="基于联盟链的不可篡改医疗工作量证明（Proof of Medical Work）方案：确权、流转、激励、隐私保护与实施路线图。">
+    <meta name="keywords" content="医疗联盟链,工作量确权,Proof of Medical Work,数字身份,DID,医疗数据上链">
+    <meta name="author" content="潍坊市人民医院胸外科 王江">
+    <title>不可篡改的工作量证明 | 医疗联盟链方案</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        'sage': {
+                            50: '#f6f7f6',
+                            100: '#e3e7e3',
+                            200: '#c7d0c7',
+                            300: '#a3b3a3',
+                            400: '#7a927a',
+                            500: '#5c755c',
+                            600: '#495d49',
+                            700: '#3d4d3d',
+                            800: '#344134',
+                            900: '#2d372d',
+                        },
+                        'charcoal': {
+                            50: '#f6f6f6',
+                            100: '#e7e7e7',
+                            200: '#d1d1d1',
+                            300: '#b0b0b0',
+                            400: '#888888',
+                            500: '#6d6d6d',
+                            600: '#5d5d5d',
+                            700: '#4f4f4f',
+                            800: '#454545',
+                            900: '#3d3d3d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .section-divider {
+            background: linear-gradient(90deg, transparent 0%, #c7d0c7 50%, transparent 100%);
+            height: 1px;
+        }
+    </style>
+</head>
+<body class="bg-sage-50 text-charcoal-900 font-sans">
+    <header class="bg-white border-b border-sage-200">
+        <div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <p class="text-sm uppercase tracking-[0.2em] text-sage-600 font-semibold mb-1">Blockchain for Healthcare</p>
+                <h1 class="text-2xl md:text-3xl font-bold text-charcoal-800">不可篡改的工作量证明（Proof of Medical Work）</h1>
+                <p class="text-charcoal-600 mt-2">面向医生确权、跨院流转与激励的联盟链解决方案</p>
+            </div>
+            <div class="flex flex-wrap gap-3 text-sm">
+                <span class="px-3 py-1 rounded-full bg-sage-100 text-sage-700">DID</span>
+                <span class="px-3 py-1 rounded-full bg-sage-100 text-sage-700">PBFT</span>
+                <span class="px-3 py-1 rounded-full bg-sage-100 text-sage-700">Hyperledger Fabric / FISCO BCOS</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-10 space-y-16">
+        <section class="bg-white rounded-2xl p-8 shadow-sm border border-sage-200">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-sage-100 flex items-center justify-center text-sage-700 text-xl">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-charcoal-800 mb-2">设计理念与价值主张</h2>
+                    <p class="text-charcoal-700 leading-relaxed">核心在于“不可篡改的工作量证明”。确权层面明确诊疗归属，流转层面让数据归属医生本人，激励层面通过积分/通证驱动绩效与声誉，避免冒名顶替或挂名。</p>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100">
+                    <h3 class="font-semibold text-charcoal-800 mb-2">确权 Authentication</h3>
+                    <p class="text-charcoal-600 text-sm leading-relaxed">链上签名明确手术/诊疗的责任归属，防止代签或冒名。</p>
+                </div>
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100">
+                    <h3 class="font-semibold text-charcoal-800 mb-2">流转 Portability</h3>
+                    <p class="text-charcoal-600 text-sm leading-relaxed">工作量数据由医生私钥控制，可跨医院使用，支持多点执业与职称评定。</p>
+                </div>
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100">
+                    <h3 class="font-semibold text-charcoal-800 mb-2">激励 Incentive</h3>
+                    <p class="text-charcoal-600 text-sm leading-relaxed">基于链上工作量自动生成积分/通证，用于绩效分配与行业声誉评级。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl p-8 shadow-sm border border-sage-200">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-sage-100 flex items-center justify-center text-sage-700 text-xl">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-charcoal-800 mb-2">技术架构</h2>
+                    <p class="text-charcoal-700 leading-relaxed">采用联盟链以满足医疗数据隐私与合规要求。分层设计包括用户层、业务逻辑层和区块链层，链上存证、链下存储。</p>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100 space-y-3">
+                    <h3 class="font-semibold text-charcoal-800">用户层</h3>
+                    <ul class="list-disc list-inside text-charcoal-600 text-sm space-y-1">
+                        <li>医生端：确权申请、账本查看、DID管理。</li>
+                        <li>医院管理端：审核工作量、维护节点。</li>
+                        <li>第三方（监管/保险）：审计数据、加速理赔。</li>
+                    </ul>
+                </div>
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100 space-y-3">
+                    <h3 class="font-semibold text-charcoal-800">业务逻辑层</h3>
+                    <ul class="list-disc list-inside text-charcoal-600 text-sm space-y-1">
+                        <li>API Gateway 处理前端请求。</li>
+                        <li>链下存储：IPFS 或加密数据库保存明文大文件，链上仅存哈希。</li>
+                        <li>预言机对接 HIS/EMR，自动获取并脱敏上链。</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="p-5 rounded-xl bg-sage-50 border border-sage-100 mt-6 space-y-2">
+                <h3 class="font-semibold text-charcoal-800">区块链层</h3>
+                <ul class="list-disc list-inside text-charcoal-600 text-sm space-y-1">
+                    <li>底层框架：推荐 Hyperledger Fabric 或 FISCO BCOS。</li>
+                    <li>智能合约：负责工作量计算、签名验证和共识流程。</li>
+                    <li>共识机制：PBFT，兼顾吞吐与联盟链的拜占庭容错需求。</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl p-8 shadow-sm border border-sage-200">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-sage-100 flex items-center justify-center text-sage-700 text-xl">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-charcoal-800 mb-2">核心工作流</h2>
+                    <p class="text-charcoal-700 leading-relaxed">以多方签名为特征，从数字身份、数据哈希、签名确认到链上共识，形成闭环的“Commit”流程。</p>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100 space-y-2">
+                    <h3 class="font-semibold text-charcoal-800">A. 数字身份（DID）</h3>
+                    <p class="text-charcoal-600 text-sm leading-relaxed">医生在 App 端生成 DID，私钥存于安全区域（Secure Enclave），作为唯一确权凭证。</p>
+                </div>
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100 space-y-2">
+                    <h3 class="font-semibold text-charcoal-800">B. 工作量上链</h3>
+                    <p class="text-charcoal-600 text-sm leading-relaxed">完成手术后抓取元数据（类型、时间、RBRVS、脱敏患者 ID），生成哈希并由医生、医院、可选的患者多方签名后提交合约完成存证。</p>
+                </div>
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100 space-y-2">
+                    <h3 class="font-semibold text-charcoal-800">C. 价值量化</h3>
+                    <p class="text-charcoal-600 text-sm leading-relaxed">智能合约内置 RBRVS 计算逻辑（如阑尾切除 10 Token，专家门诊 1 Token），自动累积医生的不可篡改工作量积分。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl p-8 shadow-sm border border-sage-200">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-sage-100 flex items-center justify-center text-sage-700 text-xl">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-charcoal-800 mb-2">关键挑战与解决方案</h2>
+                    <p class="text-charcoal-700 leading-relaxed">针对隐私、造假与存储压力，设计链上链下结合与多源验证机制。</p>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6 text-sm text-charcoal-600">
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100 space-y-2">
+                    <h3 class="font-semibold text-charcoal-800 text-base">隐私保护</h3>
+                    <p>链上仅存 Hash(病历数据+随机盐) 与 Record_ID，引入零知识证明实现工作量证明而不泄露患者详情。</p>
+                </div>
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100 space-y-2">
+                    <h3 class="font-semibold text-charcoal-800 text-base">数据造假</h3>
+                    <p>预言机对麻醉、耗材、排班等多源数据交叉验证，合约通过后才记录，减轻“Oracle 问题”。</p>
+                </div>
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100 space-y-2">
+                    <h3 class="font-semibold text-charcoal-800 text-base">存储压力</h3>
+                    <p>采用 IPFS 存储影像与报告，链上仅存 CID 和摘要，保持轻量化。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl p-8 shadow-sm border border-sage-200">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-sage-100 flex items-center justify-center text-sage-700 text-xl">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-charcoal-800 mb-2">推荐技术栈</h2>
+                    <p class="text-charcoal-700 leading-relaxed">结合联盟链、合约语言与移动端框架，快速搭建可用的 PoMW 原型。</p>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6 text-sm text-charcoal-600">
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100 space-y-1">
+                    <h3 class="font-semibold text-charcoal-800">区块链与合约</h3>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Hyperledger Fabric 或 FISCO BCOS</li>
+                        <li>链码/合约：Go 或 Solidity</li>
+                        <li>共识：PBFT</li>
+                    </ul>
+                </div>
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100 space-y-1">
+                    <h3 class="font-semibold text-charcoal-800">后端与中间件</h3>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Node.js 或 Go（Gin）</li>
+                        <li>API Gateway + 预言机</li>
+                        <li>链下加密数据库 / IPFS</li>
+                    </ul>
+                </div>
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100 space-y-1">
+                    <h3 class="font-semibold text-charcoal-800">前端与身份</h3>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Flutter 或 React Native（医生端）</li>
+                        <li>W3C DID 兼容身份体系</li>
+                        <li>移动端 Secure Enclave 保存私钥</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl p-8 shadow-sm border border-sage-200">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-sage-100 flex items-center justify-center text-sage-700 text-xl">
+                    <i class="fas fa-road"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-charcoal-800 mb-2">实施路线图</h2>
+                    <p class="text-charcoal-700 leading-relaxed">分阶段从原型到多院部署，逐步引入积分与零知识模块。</p>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100">
+                    <h3 class="font-semibold text-charcoal-800">第一阶段：原型设计（POC）</h3>
+                    <ul class="list-disc list-inside text-charcoal-600 text-sm space-y-1">
+                        <li>搭建单机版联盟链节点，编写 recordWork(doctorID, workType, timestamp) 简易合约。</li>
+                        <li>开发医生 App，支持签名上链。</li>
+                    </ul>
+                </div>
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100">
+                    <h3 class="font-semibold text-charcoal-800">第二阶段：对接与集成</h3>
+                    <ul class="list-disc list-inside text-charcoal-600 text-sm space-y-1">
+                        <li>设计 API，模拟接入一家医院的 HIS 数据。</li>
+                        <li>实现数据脱敏、哈希与多签流程。</li>
+                        <li>开发 Web 管理后台，供医院审核。</li>
+                    </ul>
+                </div>
+                <div class="p-5 rounded-xl bg-sage-50 border border-sage-100">
+                    <h3 class="font-semibold text-charcoal-800">第三阶段：完善与生态</h3>
+                    <ul class="list-disc list-inside text-charcoal-600 text-sm space-y-1">
+                        <li>引入积分/Token（内部绩效凭证）。</li>
+                        <li>模拟多节点部署（医院 A/B）。</li>
+                        <li>加入零知识证明模块，支持跨院展示业绩。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl p-8 shadow-sm border border-sage-200">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-sage-100 flex items-center justify-center text-sage-700 text-xl">
+                    <i class="fas fa-code"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-charcoal-800 mb-2">示例智能合约逻辑（Solidity 伪代码）</h2>
+                    <p class="text-charcoal-700 leading-relaxed">演示医生工作量上链、医院审核与积分累积的基本结构，可按联盟链实际框架调整。</p>
+                </div>
+            </div>
+<pre class="bg-charcoal-900 text-sage-50 text-sm rounded-xl p-4 overflow-x-auto">
+<span class="text-sage-200">// SPDX-License-Identifier: MIT</span>
+<span class="text-sage-200">pragma solidity ^0.8.0;</span>
+
+contract DoctorWorkload {
+    struct WorkRecord {
+        string doctorDID;
+        string hospitalID;
+        string dataHash;
+        uint256 workPoints;
+        uint256 timestamp;
+        bool isVerified;
+    }
+
+    mapping(string =&gt; WorkRecord[]) public doctorRecords;
+    address public authorizedHospitalNode;
+
+    event WorkRecorded(string indexed doctorDID, uint256 points);
+
+    function commitWork(
+        string memory _doctorDID,
+        string memory _hospitalID,
+        string memory _dataHash,
+        uint256 _difficultyScore
+    ) public {
+        // TODO: ecrecover 验证提交者签名
+        WorkRecord memory newRecord = WorkRecord({
+            doctorDID: _doctorDID,
+            hospitalID: _hospitalID,
+            dataHash: _dataHash,
+            workPoints: _difficultyScore,
+            timestamp: block.timestamp,
+            isVerified: false
+        });
+        doctorRecords[_doctorDID].push(newRecord);
+    }
+
+    function verifyWork(string memory _doctorDID, uint256 _index) public {
+        require(msg.sender == authorizedHospitalNode, "Not authorized");
+        WorkRecord storage record = doctorRecords[_doctorDID][_index];
+        record.isVerified = true;
+        emit WorkRecorded(_doctorDID, record.workPoints);
+    }
+}
+</pre>
+        </section>
+    </main>
+
+    <footer class="bg-white border-t border-sage-200 mt-12">
+        <div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-sm text-charcoal-600">
+            <span>潍坊市人民医院胸外科 · 数字医疗工作量确权方案</span>
+            <a href="index.html" class="text-sage-700 hover:text-sage-500">返回肺结节研究首页</a>
+        </div>
+    </footer>
+</body>
+</html>
